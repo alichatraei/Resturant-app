@@ -1,7 +1,8 @@
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useEffect, useReducer } from "react";
 import { Text, View } from "react-native";
-import yelp from "../../Api/yelp";
+import RestaurantItems from "../../Components/RestaurantCard";
 import SearchBar from "../../Components/SearchBar";
+import useSearchRestaurant from "../../hooks/useSearchRestaurant";
 const reducer = (state, action) => {
   switch (action.type) {
     case "change_search_text":
@@ -13,7 +14,7 @@ const reducer = (state, action) => {
   }
 };
 const ResturantContainer = () => {
-  const [result, setResult] = useState([]);
+  const [result, searchApi] = useSearchRestaurant();
   const [state, dispatch] = useReducer(reducer, {
     searchText: "",
     submitSearchText: "",
@@ -22,19 +23,12 @@ const ResturantContainer = () => {
     dispatch({ type: "change_search_text", payload: text });
   };
   const searchOnEndEditingHandler = () => {
-    dispatch({ type: "submit_search_text", payload: "Submitted!" });
+    searchApi(state.searchText);
   };
-  const searchApi = async () => {
-    const resultAPI = await yelp.get("/recipes/complexSearch", {
-      params: {
-        apiKey: "8c2077e5f0f9419ea48c115ce920e0f9",
-      },
-    });
-    setResult(resultAPI.data?.results);
+  const filterRestaurantsByPrice = (price) => {
+    return result.filter((item) => item?.price === price);
   };
-  useEffect(() => {
-    searchApi();
-  }, []);
+
   return (
     <View>
       <SearchBar
@@ -44,6 +38,18 @@ const ResturantContainer = () => {
       <Text> Searched text is : {state.searchText}</Text>
       <Text> Submitted search text is : {state.submitSearchText}</Text>
       <Text> Amount : {result.length}</Text>
+      <RestaurantItems
+        title={"Inexpensive  Restaurants"}
+        restaurants={filterRestaurantsByPrice("$")}
+      />
+      <RestaurantItems
+        title={"Moderately price "}
+        restaurants={filterRestaurantsByPrice("$$")}
+      />
+      <RestaurantItems
+        title={"Expensive price"}
+        restaurants={filterRestaurantsByPrice("$$$")}
+      />
     </View>
   );
 };
