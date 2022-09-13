@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer } from "react";
-import { Text, View } from "react-native";
+import { Text, View, ScrollView } from "react-native";
 import RestaurantItems from "../../Components/RestaurantCard";
 import SearchBar from "../../Components/SearchBar";
 import useSearchRestaurant from "../../hooks/useSearchRestaurant";
@@ -13,7 +13,7 @@ const reducer = (state, action) => {
       return state;
   }
 };
-const ResturantContainer = () => {
+const ResturantContainer = ({ navigation }) => {
   const [result, searchApi] = useSearchRestaurant();
   const [state, dispatch] = useReducer(reducer, {
     searchText: "",
@@ -30,26 +30,30 @@ const ResturantContainer = () => {
   };
 
   return (
-    <View>
+    <View style={{ flex: 1 }}>
       <SearchBar
         searchHandler={searchHandler}
         submitHandler={searchOnEndEditingHandler}
       />
-      <Text> Searched text is : {state.searchText}</Text>
-      <Text> Submitted search text is : {state.submitSearchText}</Text>
-      <Text> Amount : {result.length}</Text>
-      <RestaurantItems
-        title={"Inexpensive  Restaurants"}
-        restaurants={filterRestaurantsByPrice("$")}
-      />
-      <RestaurantItems
-        title={"Moderately price "}
-        restaurants={filterRestaurantsByPrice("$$")}
-      />
-      <RestaurantItems
-        title={"Expensive price"}
-        restaurants={filterRestaurantsByPrice("$$$")}
-      />
+      {!result ? null : (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <RestaurantItems
+            title={"Inexpensive  Restaurants"}
+            restaurants={filterRestaurantsByPrice("$")}
+            navigation={navigation}
+          />
+          <RestaurantItems
+            title={"Moderately price "}
+            restaurants={filterRestaurantsByPrice("$$")}
+            navigation={navigation}
+          />
+          <RestaurantItems
+            title={"Expensive price"}
+            restaurants={filterRestaurantsByPrice("$$$")}
+            navigation={navigation}
+          />
+        </ScrollView>
+      )}
     </View>
   );
 };
